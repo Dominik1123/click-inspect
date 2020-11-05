@@ -12,6 +12,7 @@ keywords = ["click", "command line interface", "inspect"]
 [tool.poetry.dependencies]
 python = "^3.7"
 importlib_metadata = {version = "^1.6.1", python = "<3.8"}
+Sphinx = "^3.3.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.4.3"
@@ -24,13 +25,14 @@ mypy = "^0.780"
 flake8-docstrings = "^1.5.0"
 darglint = "^1.4.1"
 codecov = "^2.1.4"
+click = "^7.1.2"
 
 [tool.coverage.paths]
 source = ["src"]
 
 [tool.coverage.run]
 branch = true
-source = ["click-inspect"]
+source = ["click_inspect"]
 omit = ["src/click_inspect/__init__.py"]
 
 [tool.coverage.report]
