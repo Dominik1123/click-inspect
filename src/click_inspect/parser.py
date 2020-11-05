@@ -1,6 +1,5 @@
 from collections import defaultdict
 import inspect
-import textwrap
 from typing import Dict
 
 from sphinx.ext.napoleon import Config, GoogleDocstring, NumpyDocstring
