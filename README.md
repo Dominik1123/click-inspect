@@ -107,3 +107,7 @@ def display(file, **kwargs):
     data = [[int(x) for x in row] for row in data]
     print(display_data(data, **kwargs))
 ```
+
+### Docstring styles
+
+`click-inspect` supports inspecting [reST-style](https://www.python.org/dev/peps/pep-0287/) docstrings, as well as [Google-](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) and [Numpy-style](https://numpydoc.readthedocs.io/en/latest/format.html) docstrings via [`napoleon`](https://pypi.org/project/sphinxcontrib-napoleon/).
