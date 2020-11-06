@@ -82,10 +82,10 @@ def docstring(request):
 
 def test_parse_docstring(docstring):
     assert parse_docstring(docstring) == {
-        'foo': {'help': 'This is foo.', 'type': 'int'},
+        'foo': {'help': 'This is foo.', 'type': ['int']},
         'bar': {'help': 'This is bar.'},
-        'baz': {'help': 'This is baz.', 'type': 'float or str'},
-        'a_b_c': {'help': 'This is a_b_c.', 'type': 'CustomType'},
+        'baz': {'help': 'This is baz.', 'type': ['float', 'str']},
+        'a_b_c': {'help': 'This is a_b_c.', 'type': ['CustomType']},
     }
 
 
@@ -93,3 +93,12 @@ def test_parse_docstring_raises():
     with pytest.raises(UnsupportedDocstringStyle) as excinfo:
         parse_docstring('This docstring contains no parameters')
     assert excinfo.value.args[0] == 'This docstring contains no parameters'
+
+
+def test_parse_base_function(base_function):
+    assert parse_docstring(base_function.__doc__) == {
+        'a': {'help': 'This parameter should be skipped.', 'type': ['str']},
+        'b': {'help': 'This one should be added.', 'type': ['int']},
+        'c': {'help': 'This one should be added too.', 'type': ['int']},
+        'd': {'help': 'And so should this one.', 'type': ['str']},
+    }
