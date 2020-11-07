@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.fixture()
+@pytest.fixture(scope='function')
 def base_function():
     def _f(a, b: int = 1, *, c: int, d: str = 'test'):
         """Short description.
