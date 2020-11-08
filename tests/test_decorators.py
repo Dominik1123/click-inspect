@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import sys
+
 import click
 import pytest
 
@@ -172,3 +176,15 @@ def test_add_options_from_readme_example_func(readme_example_function):
     assert test.params[2].default == ' '
     assert test.params[2].required is False
     assert test.params[2].help == 'Symbol for displaying empty space.'
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 9),
+    reason='Starting with Python 3.9 get_type_hints works without raising TypeError.')
+def test_add_options_from_warn_on_standard_collections_as_typing_generics():
+    def func(*, a: list[str]): pass
+
+    with pytest.warns(UserWarning) as warninfo:
+        @add_options_from(func)
+        def test(): pass
+
+    assert len(warninfo) == 2  # Warns another time because no type hint is available.

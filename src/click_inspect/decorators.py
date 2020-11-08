@@ -5,6 +5,7 @@ from collections import defaultdict
 import inspect
 from inspect import Parameter
 import re
+import sys
 from typing import get_type_hints, Sequence
 try:
     from typing import get_args, get_origin
@@ -45,9 +46,19 @@ def add_options_from(func,
         p_doc = parse_docstring(func.__doc__ or '')
     except UnsupportedDocstringStyle:
         p_doc = defaultdict(dict)
+    try:
+        type_hints = get_type_hints(func)
     except TypeError:  # `from __future__ import annotations` with e.g. `list[int]` on Python < 3.9.
-        raise ...
-    type_hints = get_type_hints(func)
+        if sys.version_info < (3, 9):
+            warnings.warn('This decorator attempts to retrieve type hints via `typing.get_type_hints`. '
+                          'This however is not compatible with `from __future__ import annotations` '
+                          'and standard collections as type hinting generics (e.g. `list[int]`). '
+                          'Please use the typing collections instead (e.g. `typing.List[int]`). '
+                          'This decorator continues to work however no type information from '
+                          'annotations will be used. This might lead to unexpected results.')
+        else:
+            raise  # pragma: no cover
+        type_hints = {}
     parameters = inspect.signature(func).parameters
     to_be_used = (include or parameters.keys()) - (exclude or set())
     parameters = [(name, parameter) for name, parameter in parameters.items() 
@@ -63,7 +74,7 @@ def add_options_from(func,
             )
             if not condition:
                 continue
-                
+
             try:
                 opt_names = names[name]
             except KeyError:
@@ -77,19 +88,21 @@ def add_options_from(func,
                 kwargs['default'] = parameter.default
             else:
                 kwargs['required'] = True
-
-                if parameter.annotation is not EMPTY:
-                    tp = type_hints[name]
-                    kwargs['type'] = get_origin(tp) or tp
-                else:
-                    tp_candidates = p_doc[name].get('type', ())
+                try:
+                    kwargs['type'] = custom[name]['type']
+                except KeyError:
                     try:
-                        kwargs['type'] = getattr(builtins, tp_candidates[0])
-                    except IndexError:
-                        warnings.warn(f'No type hint for parameter {name!r}')
-                    except AttributeError:
-                        msg = f'{tp_candidates[0]} (only builtin types are supported)'
-                        raise UnsupportedTypeHint(msg) from None
+                        tp = type_hints[name]
+                        kwargs['type'] = get_origin(tp) or tp
+                    except KeyError:
+                        tp_candidates = p_doc[name].get('type', ())
+                        try:
+                            kwargs['type'] = getattr(builtins, tp_candidates[0])
+                        except IndexError:
+                            warnings.warn(f'No type hint for parameter {name!r}')
+                        except AttributeError:
+                            msg = f'{tp_candidates[0]} (only builtin types are supported)'
+                            raise UnsupportedTypeHint(msg) from None
             kwargs.update(custom.get(name, {}))
             click.option(*opt_names, **kwargs)(f)
         return f
