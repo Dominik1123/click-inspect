@@ -79,7 +79,7 @@ $ python example.py test.json
 +-----+
 ```
 
-Now this only uses the default configuration of the `display_data` function and we also want to expose these optional arguments to the command line interface. We can do so by adding a few options:
+Now this only uses the default configuration of the `display_data` function and we also want to expose these optional parameters to the command line interface. We can do so by adding a few options:
 
 ```python
 @click.command()
