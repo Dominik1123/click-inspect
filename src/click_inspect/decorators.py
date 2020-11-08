@@ -61,35 +61,37 @@ def add_options_from(func,
                 or parameter.kind is KEYWORD_ONLY
                 or parameter.kind is POSITIONAL_OR_KEYWORD and has_default
             )
-            if condition:
-                try:
-                    opt_names = names[name]
-                except KeyError:
-                    opt_names = f'--{name.replace("_", "-")}',
+            if not condition:
+                continue
+                
+            try:
+                opt_names = names[name]
+            except KeyError:
+                opt_names = f'--{name.replace("_", "-")}',
 
-                kwargs = {}
-                if 'help' in p_doc[name]:
-                    kwargs['help'] = p_doc[name]['help']
+            kwargs = {}
+            if 'help' in p_doc[name]:
+                kwargs['help'] = p_doc[name]['help']
 
-                if has_default:
-                    kwargs['default'] = parameter.default
+            if has_default:
+                kwargs['default'] = parameter.default
+            else:
+                kwargs['required'] = True
+
+                if parameter.annotation is not EMPTY:
+                    tp = type_hints[name]
+                    kwargs['type'] = get_origin(tp) or tp
                 else:
-                    kwargs['required'] = True
-
-                    if parameter.annotation is not EMPTY:
-                        tp = type_hints[name]
-                        kwargs['type'] = get_origin(tp) or tp
-                    else:
-                        tp_candidates = p_doc[name].get('type', ())
-                        try:
-                            kwargs['type'] = getattr(builtins, tp_candidates[0])
-                        except IndexError:
-                            warnings.warn(f'No type hint for parameter {name!r}')
-                        except AttributeError:
-                            msg = f'{tp_candidates[0]} (only builtin types are supported)'
-                            raise UnsupportedTypeHint(msg) from None
-                kwargs.update(custom.get(name, {}))
-                click.option(*opt_names, **kwargs)(f)
+                    tp_candidates = p_doc[name].get('type', ())
+                    try:
+                        kwargs['type'] = getattr(builtins, tp_candidates[0])
+                    except IndexError:
+                        warnings.warn(f'No type hint for parameter {name!r}')
+                    except AttributeError:
+                        msg = f'{tp_candidates[0]} (only builtin types are supported)'
+                        raise UnsupportedTypeHint(msg) from None
+            kwargs.update(custom.get(name, {}))
+            click.option(*opt_names, **kwargs)(f)
         return f
 
     return _decorator
