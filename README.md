@@ -16,7 +16,9 @@
 Suppose an application containing an API function for which we would like to expose a command line interface. That function expects one or two arguments with internal data types and a bunch of configuration options. For example:
 
 ```python
-def display_data(data: List[Tuple[int, int]], *, size: int, symbol: str = 'x', empty: str = ' ') -> str:
+def display_data(data: List[Tuple[int, int]],
+                 *,
+                 size: int, symbol: str = 'x', empty: str = ' ') -> str:
     """Display the given data points in a 2D ASCII grid.
 
     Args:
