@@ -115,7 +115,7 @@ def display(file, **kwargs):
 ### Customization
 
 The `add_options_from` decorator supports various keyword parameters which can be used for
-customizing the way options are created from the parameters. Please refer to the docstring
+customizing the way options are created from parameters. Please refer to the docstring
 of `add_options_from` for more information. In the following some possibilities are shown:
 
 ```python
