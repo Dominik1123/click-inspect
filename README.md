@@ -97,9 +97,11 @@ def display(file, size, symbol, empty):
 But that's a lot of code duplication. We duplicated the parameter names, the default values and the help text from the docstring.
 Also if we decide to add a new parameter to `display_data` we need to update the command as well.
 
-This is where `click-inspect` comes in handy. Using the `add_options_from` decorator we can simply add all optional arguments from `display_data` to the `display` command without code duplication:
+This is where `click-inspect` comes in handy. Using the `add_options_from` decorator we can simply add all optional parameters from `display_data` to the `display` command without code duplication:
 
 ```python
+from click_inspect import add_options_from
+
 @click.command()
 @click.argument('file')
 @add_options_from(display_data)
