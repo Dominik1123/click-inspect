@@ -30,7 +30,7 @@ def add_options_from(func,
                      include: set[str] = None,
                      exclude: set[str] = None,
                      custom: [dict[str, dict]] = None):
-    """Inspect `func` and add corresponding options to the decorated command.
+    """Inspect `func` and add corresponding options to the decorated function.
 
     Args:
         func (callable): The function which provides the options through inspection.
@@ -38,6 +38,19 @@ def add_options_from(func,
         include (set): Parameter names to be used from `func`.
         exclude (set): Parameter names to be excluded from `func`.
         custom (dict): Map parameter names to custom kwargs for the corresponding option.
+
+    Returns:
+        callable: A decorator which will add the requested options to the decorated function.
+
+    Raises:
+        UnsupportedTypeHint: If a type hint is only specified as part of the docstring and
+                             it's not a builtin type.
+
+    Warns:
+        UserWarning: If a parameter of `func` has no default and no type information can be
+                     retrieved from either `custom`, annotations of the docstring.
+                     If `func` type hints contain standard collections as type hinting generics
+                     for Python < 3.9 (e.g. `list[int]`).
     """
     include = include or set()
     names = names or {}
