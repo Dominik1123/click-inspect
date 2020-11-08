@@ -108,6 +108,26 @@ def display(file, **kwargs):
     print(display_data(data, **kwargs))
 ```
 
-### Docstring styles
+### Customization
+
+The `add_options_from` decorator supports various keyword parameters which can be used for
+customizing the way options are created from the parameters. Please refer to the docstring
+of `add_options_from` for more information. In the following some possibilities are shown:
+
+```python
+# This adds only the `size` and `empty` parameters as options:
+@add_options_from(display_data, include={'size', 'empty'})
+
+# This has a similar effect by excluding the `symbol` parameter:
+@add_options_from(display_data, exclude={'symbol'})
+
+# This specifies custom option-names for some of the parameters:
+@add_options_from(display_data, names={'size': ['-s', '--size'], 'empty': ['-e', '--empty']})
+
+# This overrides the default value for the `symbol` parameter:
+@add_options_from(display_data, custom={'symbol': {'default': '#'}})
+```
+
+## Docstring styles
 
 `click-inspect` supports inspecting [reST-style](https://www.python.org/dev/peps/pep-0287/) docstrings, as well as [Google-](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) and [Numpy-style](https://numpydoc.readthedocs.io/en/latest/format.html) docstrings via [`sphinx.ext.napoleon`](https://github.com/sphinx-doc/sphinx/tree/master/sphinx/ext/napoleon).
