@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 import inspect
+from typing import Any, DefaultDict, Dict
 
-from sphinx.ext.napoleon import Config, GoogleDocstring, NumpyDocstring
+from sphinx.ext.napoleon import Config, GoogleDocstring, NumpyDocstring  # type: ignore
 
 from .errors import UnsupportedDocstringStyle
 
@@ -13,7 +14,7 @@ GOOGLE_HEADER = 'Args:'
 NUMPY_HEADER = 'Parameters\n----------'
 
 
-def parse_docstring(doc: str) -> dict[str, dict[str, str]]:
+def parse_docstring(doc: str) -> Dict[str, Dict[str, Any]]:
     doc = inspect.cleandoc(doc)
     if NUMPY_HEADER in doc:
         lines = NumpyDocstring(doc, config=CONFIG).lines()
@@ -23,7 +24,7 @@ def parse_docstring(doc: str) -> dict[str, dict[str, str]]:
         lines = doc.splitlines()
     else:
         raise UnsupportedDocstringStyle(doc)
-    parameters = defaultdict(dict)
+    parameters: DefaultDict[str, Dict[str, Any]] = defaultdict(dict)
     for line in lines:
         if line.startswith(':param '):
             name, parameters[name]['help'] = _find_name_and_remainder(line)

@@ -1,16 +1,13 @@
-from __future__ import annotations
-
 import builtins
 from collections import defaultdict
 import inspect
 from inspect import Parameter
-import re
 import sys
-from typing import get_type_hints, Sequence
+from typing import Any, Dict, Sequence, Set, get_type_hints
 try:
-    from typing import get_args, get_origin
-except ImportError:                                     # pragma: no cover
-    from typing_extensions import get_args, get_origin  # pragma: no cover
+    from typing import get_origin             # type: ignore
+except ImportError:                           # pragma: no cover
+    from typing_extensions import get_origin  # pragma: no cover
 import warnings
 
 import click
@@ -26,10 +23,10 @@ EMPTY = Parameter.empty
 
 def add_options_from(func,
                      *,
-                     names: dict[str, Sequence[str]] = None,
-                     include: set[str] = None,
-                     exclude: set[str] = None,
-                     custom: [dict[str, dict]] = None):
+                     names: Dict[str, Sequence[str]] = None,
+                     include: Set[str] = None,
+                     exclude: Set[str] = None,
+                     custom: Dict[str, Dict[str, Any]] = None):
     """Inspect `func` and add corresponding options to the decorated function.
 
     Args:
@@ -45,6 +42,7 @@ def add_options_from(func,
     Raises:
         UnsupportedTypeHint: If a type hint is only specified as part of the docstring and
                              it's not a builtin type.
+        TypeError: If `typing.get_type_hints` raises TypeError on Python >= 3.9.
 
     Warns:
         UserWarning: If a parameter of `func` has no default and no type information can be
@@ -72,9 +70,9 @@ def add_options_from(func,
         else:
             raise  # pragma: no cover
         type_hints = {}
-    parameters = inspect.signature(func).parameters
-    to_be_used = (include or parameters.keys()) - (exclude or set())
-    parameters = [(name, parameter) for name, parameter in parameters.items() 
+    all_parameters = inspect.signature(func).parameters
+    to_be_used = (include or all_parameters.keys()) - (exclude or set())
+    parameters = [(name, parameter) for name, parameter in all_parameters.items()
                   if name in to_be_used]
 
     def _decorator(f):

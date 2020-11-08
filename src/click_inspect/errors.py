@@ -2,6 +2,8 @@ import textwrap
 
 
 class UnsupportedDocstringStyle(Exception):
+    """Use this error if a docstring cannot be parsed into its parameters."""
+
     MAX_WIDTH = 79
 
     def __init__(self, doc: str):
@@ -10,4 +12,4 @@ class UnsupportedDocstringStyle(Exception):
 
 
 class UnsupportedTypeHint(Exception):
-    pass
+    """Use this error if a type hint contained by a docstring cannot be resolved."""
