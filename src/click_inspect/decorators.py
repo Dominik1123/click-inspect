@@ -45,6 +45,8 @@ def add_options_from(func,
         p_doc = parse_docstring(func.__doc__ or '')
     except UnsupportedDocstringStyle:
         p_doc = defaultdict(dict)
+    except TypeError:  # `from __future__ import annotations` with e.g. `list[int]` on Python < 3.9.
+        raise ...
     type_hints = get_type_hints(func)
     parameters = inspect.signature(func).parameters
     to_be_used = (include or parameters.keys()) - (exclude or set())

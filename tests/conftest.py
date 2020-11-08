@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 import pytest
 
 
@@ -19,3 +21,21 @@ def base_function():
             str: This is just a test.
         """
     return _f
+
+
+@pytest.fixture()
+def readme_example_function():
+    def display_data(data: List[Tuple[int, int]],
+                     *, size: int, symbol: str = 'x', empty: str = ' ') -> str:
+        """Display the given data points in a 2D ASCII grid.
+
+        Args:
+            data (list of (int, int)): The data points as x- and y-tuples.
+            size (int): Size of the grid in both dimensions.
+            symbol (str): Symbol for displaying data points.
+            empty (str): Symbol for displaying empty space.
+
+        Returns:
+            str: The string containing the grid.
+        """
+    return display_data

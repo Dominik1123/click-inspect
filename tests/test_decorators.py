@@ -144,3 +144,31 @@ def test_add_options_from_unsupported_docstring_style():
 
     assert len(test.params) == 1
     assert test.params[0].help is None
+
+
+def test_add_options_from_readme_example_func(readme_example_function):
+    @click.command()
+    @add_options_from(readme_example_function)
+    def test(): pass
+
+    assert len(test.params) == 3
+
+    assert test.params[0].name == 'size'
+    assert test.params[0].opts == ['--size']
+    assert test.params[0].type is click.INT
+    assert test.params[0].required is True
+    assert test.params[0].help == 'Size of the grid in both dimensions.'
+
+    assert test.params[1].name == 'symbol'
+    assert test.params[1].opts == ['--symbol']
+    assert test.params[1].type is click.STRING
+    assert test.params[1].default == 'x'
+    assert test.params[1].required is False
+    assert test.params[1].help == 'Symbol for displaying data points.'
+
+    assert test.params[2].name == 'empty'
+    assert test.params[2].opts == ['--empty']
+    assert test.params[2].type is click.STRING
+    assert test.params[2].default == ' '
+    assert test.params[2].required is False
+    assert test.params[2].help == 'Symbol for displaying empty space.'
