@@ -69,7 +69,7 @@ if __name__ == '__main__':
 Then we can run the program in the following way:
 
 ```text
-$ python example.py test.json 
+$ python example.py test.json
 +-----+
 |     |
 | x   |

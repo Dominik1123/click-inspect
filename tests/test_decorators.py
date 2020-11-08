@@ -111,7 +111,7 @@ def test_add_options_from_warn_if_no_type():
         Args:
             a: Test parameter
         """
-    
+
     with pytest.warns(UserWarning) as warninfo:
         @add_options_from(func)
         def test(): pass
@@ -127,7 +127,7 @@ def test_add_options_from_raise_if_invalid_type():
         Args:
             a (SomeType): Test parameter
         """
-    
+
     with pytest.raises(UnsupportedTypeHint) as excinfo:
         @add_options_from(func)
         def test(): pass

@@ -9,5 +9,6 @@ repos:
     -   id: flake8
         name: flake8
         entry: poetry run flake8
+        files: src/click_inspect
         language: system
         types: [python]
