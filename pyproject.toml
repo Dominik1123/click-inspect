@@ -12,7 +12,7 @@ keywords = ["click", "command line interface", "inspect"]
 [tool.poetry.dependencies]
 python = "^3.7"
 importlib_metadata = {version = "^1.6.1", python = "<3.8"}
-typing-extensions = {version = "^3.7.4", python = "<3.9"}
+typing-extensions = {version = "^3.7.4.3", python = "<3.9"}
 click = "^7.1.2"
 Sphinx = "^3.3.0"
 
