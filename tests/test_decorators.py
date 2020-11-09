@@ -6,7 +6,6 @@ import click
 import pytest
 
 from click_inspect import add_options_from
-from click_inspect.errors import UnsupportedTypeHint
 
 
 def test_add_options_from(base_function):
@@ -120,20 +119,6 @@ def test_add_options_from_warn_if_no_type():
     assert str(warninfo[0].message.args[0]) == "No type hint for parameter 'a'"
 
 
-def test_add_options_from_raise_if_invalid_type():
-    def func(*, a):
-        """Test func.
-
-        Args:
-            a (SomeType): Test parameter
-        """
-
-    with pytest.raises(UnsupportedTypeHint) as excinfo:
-        @add_options_from(func)
-        def test(): pass
-    assert str(excinfo.value) == 'SomeType (only builtin types are supported)'
-
-
 def test_add_options_from_unsupported_docstring_style():
     def func(*, a: int):
         """Test func.
@@ -176,6 +161,67 @@ def test_add_options_from_readme_example_func(readme_example_function):
     assert test.params[2].default == ' '
     assert test.params[2].required is False
     assert test.params[2].help == 'Symbol for displaying empty space.'
+
+
+def test_add_options_from_list_type_hint(list_type_hint_function):
+    @click.command()
+    @add_options_from(list_type_hint_function)
+    def test(): pass
+
+    assert len(test.params) == 1
+
+    assert test.params[0].name == 'x'
+    assert test.params[0].opts == ['--x']
+    assert test.params[0].type is click.INT
+    assert test.params[0].required is True
+    assert test.params[0].multiple is True
+    assert test.params[0].help == '...'
+
+
+def test_add_options_from_list_type_hint_via_docstring(list_type_hint_function):
+    list_type_hint_function.__annotations__ = {}
+    test_add_options_from_list_type_hint(list_type_hint_function)
+
+
+def test_add_options_from_tuple_type_hint(tuple_type_hint_function):
+    @click.command()
+    @add_options_from(tuple_type_hint_function)
+    def test(): pass
+
+    assert len(test.params) == 1
+
+    assert test.params[0].name == 'x'
+    assert test.params[0].opts == ['--x']
+    assert type(test.params[0].type) is click.Tuple
+    assert test.params[0].type.types == [click.INT, click.STRING]
+    assert test.params[0].nargs == 2
+    assert test.params[0].required is True
+    assert test.params[0].help == '...'
+
+
+def test_add_options_from_tuple_type_hint_via_docstring(tuple_type_hint_function):
+    tuple_type_hint_function.__annotations__ = {}
+    test_add_options_from_tuple_type_hint(tuple_type_hint_function)
+
+
+
+def test_add_options_from_union_type_hint(union_type_hint_function):
+    @click.command()
+    @add_options_from(union_type_hint_function)
+    def test(): pass
+
+    assert len(test.params) == 1
+
+    assert test.params[0].name == 'x'
+    assert test.params[0].opts == ['--x']
+    assert test.params[0].type is click.INT
+    assert test.params[0].required is True
+    assert test.params[0].help == '...'
+
+
+def test_add_options_from_union_type_hint_via_docstring(union_type_hint_function):
+    union_type_hint_function.__annotations__ = {}
+    test_add_options_from_union_type_hint(union_type_hint_function)
 
 
 @pytest.mark.skipif(sys.version_info >= (3, 9),

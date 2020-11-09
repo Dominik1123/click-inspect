@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import pytest
 
@@ -39,3 +39,45 @@ def readme_example_function():
             str: The string containing the grid.
         """
     return display_data
+
+
+@pytest.fixture(scope='function')
+def list_type_hint_function():
+    def _f(*, x: List[int]):
+        """Short description.
+
+        Long
+        description.
+
+        Args:
+            x (list of int): ...
+        """
+    return _f
+
+
+@pytest.fixture(scope='function')
+def tuple_type_hint_function():
+    def _f(*, x: Tuple[int, str]):
+        """Short description.
+
+        Long
+        description.
+
+        Args:
+            x ((int, str)): ...
+        """
+    return _f
+
+
+@pytest.fixture(scope='function')
+def union_type_hint_function():
+    def _f(*, x: Union[int, str]):
+        """Short description.
+
+        Long
+        description.
+
+        Args:
+            x (int or str): ...
+        """
+    return _f

@@ -1,18 +1,18 @@
-import builtins
 from collections import defaultdict
+import collections.abc
 import inspect
 from inspect import Parameter
 import sys
-from typing import Any, Dict, Sequence, Set, get_type_hints
+from typing import Any, Dict, Sequence, Set, Union, get_type_hints
 try:
-    from typing import get_origin             # type: ignore
-except ImportError:                           # pragma: no cover
-    from typing_extensions import get_origin  # pragma: no cover
+    from typing import get_args, get_origin             # type: ignore
+except ImportError:                                     # pragma: no cover
+    from typing_extensions import get_args, get_origin  # pragma: no cover
 import warnings
 
 import click
 
-from .errors import UnsupportedDocstringStyle, UnsupportedTypeHint
+from .errors import UnsupportedDocstringStyle
 from .parser import parse_docstring
 
 
@@ -40,8 +40,6 @@ def add_options_from(func,
         callable: A decorator which will add the requested options to the decorated function.
 
     Raises:
-        UnsupportedTypeHint: If a type hint is only specified as part of the docstring and
-                             it's not a builtin type.
         TypeError: If `typing.get_type_hints` raises TypeError on Python >= 3.9.
 
     Warns:
@@ -103,19 +101,28 @@ def add_options_from(func,
                     kwargs['type'] = custom[name]['type']
                 except KeyError:
                     try:
-                        tp = type_hints[name]
-                        kwargs['type'] = get_origin(tp) or tp
+                        tp_hint = type_hints[name]
                     except KeyError:
-                        tp_candidates = p_doc[name].get('type', ())
                         try:
-                            kwargs['type'] = getattr(builtins, tp_candidates[0])
-                        except IndexError:
+                            tp_hint = p_doc[name]['type']
+                        except KeyError:
+                            tp_hint = None
                             warnings.warn(f'No type hint for parameter {name!r}')
-                        except AttributeError:
-                            msg = f'{tp_candidates[0]} (only builtin types are supported)'
-                            raise UnsupportedTypeHint(msg) from None
+                    if tp_hint is not None:
+                        kwargs.update(_parse_type_hint_into_kwargs(tp_hint))
             kwargs.update(custom.get(name, {}))
             click.option(*opt_names, **kwargs)(f)
         return f
 
     return _decorator
+
+
+def _parse_type_hint_into_kwargs(tp_hint):
+    args, origin = get_args(tp_hint), get_origin(tp_hint)
+    if origin in (list, collections.abc.Sequence):
+        return dict(multiple=True, type=args[0])
+    elif origin is tuple:
+        return dict(type=args)
+    elif origin is Union:
+        return dict(type=args[0])
+    return dict(type=(origin or tp_hint))

@@ -1,6 +1,6 @@
 [flake8]
 select = BLK,C,D,DAR,E,F,I,W
-ignore = BLK100,D100,D103,D104,D105,D107,E226,W503
+ignore = BLK100,D100,D103,D104,D105,D107,E127,E226,W503
 exclude =
     src/click_inspect/__init__.py
 

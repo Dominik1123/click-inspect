@@ -9,7 +9,3 @@ class UnsupportedDocstringStyle(Exception):
     def __init__(self, doc: str):
         width = self.MAX_WIDTH - len(self.__class__.__name__) - 2  # Account for ": ".
         super().__init__(textwrap.shorten(doc, width=width, placeholder='...'))
-
-
-class UnsupportedTypeHint(Exception):
-    """Use this error if a type hint contained by a docstring cannot be resolved."""

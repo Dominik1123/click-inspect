@@ -132,6 +132,40 @@ of `add_options_from` for more information. In the following some possibilities 
 @add_options_from(display_data, custom={'symbol': {'default': '#'}})
 ```
 
+### Lists and tuples
+
+`click-inspect` also supports sequences as type hints (e.g. `list[int]` or `tuple[int, str]`).
+Specifically those type hints are translated as follows:
+
+```python
+foo: Sequence[int]
+foo: List[int]
+# translates to
+click.option('--foo', multiple=True, type=int)
+
+# -------------------------------------------------- #
+
+foo: Tuple[int, str]
+# translates to
+click.option('--foo', type=(int, str))
+```
+
+These type hints are also supported as part of the docstring:
+
+```python
+"""
+Args:
+    foo (list of int): Equivalent to List[int].
+    foo ((int, str)): Equivalent to Tuple[int, str].
+"""
+```
+
+### Unions
+
+`click-inspect` also supports `typing.Union` by simply selecting the first option as the type.
+So `Union[int, str]` is equivalent to `int`.
+Unions are also supported as part of the docstring via `int or str`.
+
 ## Docstring styles
 
 `click-inspect` supports inspecting [reST-style](https://www.python.org/dev/peps/pep-0287/) docstrings, as well as [Google-](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) and [Numpy-style](https://numpydoc.readthedocs.io/en/latest/format.html) docstrings via [`sphinx.ext.napoleon`](https://github.com/sphinx-doc/sphinx/tree/master/sphinx/ext/napoleon).
