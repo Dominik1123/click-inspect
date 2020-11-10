@@ -84,11 +84,6 @@ def add_options_from(func,
             if not condition:
                 continue
 
-            try:
-                opt_names = names[name]
-            except KeyError:
-                opt_names = f'--{name.replace("_", "-")}',
-
             kwargs = {}
             if 'help' in p_doc[name]:
                 kwargs['help'] = p_doc[name]['help']
@@ -97,20 +92,33 @@ def add_options_from(func,
                 kwargs['default'] = parameter.default
             else:
                 kwargs['required'] = True
+
+            try:
+                kwargs['type'] = custom[name]['type']
+            except KeyError:
                 try:
-                    kwargs['type'] = custom[name]['type']
+                    tp_hint = type_hints[name]
                 except KeyError:
                     try:
-                        tp_hint = type_hints[name]
+                        tp_hint = p_doc[name]['type']
                     except KeyError:
-                        try:
-                            tp_hint = p_doc[name]['type']
-                        except KeyError:
-                            tp_hint = None
+                        tp_hint = None
+                        if parameter.default is EMPTY:
                             warnings.warn(f'No type hint for parameter {name!r}')
-                    if tp_hint is not None:
-                        kwargs.update(_parse_type_hint_into_kwargs(tp_hint))
+                if tp_hint is not None:
+                    kwargs.update(_parse_type_hint_into_kwargs(tp_hint))
+
             kwargs.update(custom.get(name, {}))
+
+            try:
+                opt_names = names[name]
+            except KeyError:
+                opt_name = name.replace("_", "-")
+                if kwargs.get('is_flag', False):
+                    opt_names = [f'--{opt_name}/--no-{opt_name}']
+                else:
+                    opt_names = [f'--{opt_name}']
+
             click.option(*opt_names, **kwargs)(f)
         return f
 
@@ -119,7 +127,9 @@ def add_options_from(func,
 
 def _parse_type_hint_into_kwargs(tp_hint):
     args, origin = get_args(tp_hint), get_origin(tp_hint)
-    if origin in (list, collections.abc.Sequence):
+    if tp_hint is bool:
+        return dict(is_flag=True)
+    elif origin in (list, collections.abc.Sequence):
         return dict(multiple=True, type=args[0])
     elif origin is tuple:
         return dict(type=args)

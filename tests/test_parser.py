@@ -134,6 +134,7 @@ def test_parse_docstring_base_function(base_function):
         'b': {'help': 'This one should be added.', 'type': int},
         'c': {'help': 'This one should be added too.', 'type': int},
         'd': {'help': 'And so should this one.', 'type': str},
+        'e': {'help': 'Boolean flag.', 'type': bool},
     }
 
 

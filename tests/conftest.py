@@ -5,7 +5,7 @@ import pytest
 
 @pytest.fixture(scope='function')
 def base_function():
-    def _f(a, b: int = 1, *, c: int, d: str = 'test'):
+    def _f(a, b: int = 1, *, c: int, d: str = 'test', e: bool = True):
         """Short description.
 
         Long
@@ -16,6 +16,7 @@ def base_function():
             b (int): This one should be added.
             c (int): This one should be added too.
             d (str): And so should this one.
+            e (bool): Boolean flag.
 
         Returns:
             str: This is just a test.

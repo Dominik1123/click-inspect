@@ -132,6 +132,23 @@ of `add_options_from` for more information. In the following some possibilities 
 @add_options_from(display_data, custom={'symbol': {'default': '#'}})
 ```
 
+### Boolean flags
+
+Boolean flags are supported via the `bool` type hint. The default behavior is to create an on-/off-option
+as described in the [click docs](https://click.palletsprojects.com/en/7.x/options/#boolean-flags).
+If this is undesired, it can be customized by using the `names` keyword parameter of `add_options_from`:
+
+```python
+foo: bool = True
+# translates to
+click.option('--foo/--no-foo', default=True)
+
+# Use the following to create an on-/off-option:
+add_options_from(my_func, names={'foo': ['--foo']})
+# translates to
+click.option('--foo', is_flag=True, default=True)
+```
+
 ### Lists and tuples
 
 `click-inspect` also supports sequences as type hints (e.g. `list[int]` or `tuple[int, str]`).
@@ -166,6 +183,6 @@ Args:
 So `Union[int, str]` is equivalent to `int`.
 Unions are also supported as part of the docstring via `int or str`.
 
-## Docstring styles
+### Docstring styles
 
 `click-inspect` supports inspecting [reST-style](https://www.python.org/dev/peps/pep-0287/) docstrings, as well as [Google-](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) and [Numpy-style](https://numpydoc.readthedocs.io/en/latest/format.html) docstrings via [`sphinx.ext.napoleon`](https://github.com/sphinx-doc/sphinx/tree/master/sphinx/ext/napoleon).
