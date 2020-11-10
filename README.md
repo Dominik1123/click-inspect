@@ -180,9 +180,13 @@ Args:
 ### Unions
 
 `click-inspect` also supports `typing.Union` by simply selecting the first option as the type.
-So `Union[int, str]` is equivalent to `int`.
+So `Union[int, str]` is equivalent to `int`.<sup>(1)</sup>
 Unions are also supported as part of the docstring via `int or str`.
 
 ### Docstring styles
 
 `click-inspect` supports inspecting [reST-style](https://www.python.org/dev/peps/pep-0287/) docstrings, as well as [Google-](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) and [Numpy-style](https://numpydoc.readthedocs.io/en/latest/format.html) docstrings via [`sphinx.ext.napoleon`](https://github.com/sphinx-doc/sphinx/tree/master/sphinx/ext/napoleon).
+
+-----
+
+<sup>(1) If the Union is part of a generic type, it is not guaranteed that the first option is the same one that is displayed in the Union literal. This is because generic types cache their `__getitem__` methods. For that reason `List[Union[int, str]] is List[Union[str, int]]` and the selected type would be `int` in both cases since that's the one that got cached.</sup>

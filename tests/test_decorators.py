@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import sys
+from typing import List, Sequence, Tuple, Union
 
 import click
 import pytest
 
-from click_inspect import add_options_from
+from click_inspect.decorators import add_options_from, _parse_type_hint_into_kwargs
 
 
 def test_add_options_from(base_function):
@@ -288,6 +289,17 @@ def test_add_options_from_union_type_hint_via_docstring(union_type_hint_function
     test_add_options_from_union_type_hint(union_type_hint_function)
 
 
+def test_add_option_from_nested_union_and_sequence():
+    def func(*, x: Union[List[int], str]): pass
+
+    @click.command()
+    @add_options_from(func)
+    def test(): pass
+
+    assert len(test.params) == 1
+    assert test.params[0].type is click.INT
+
+
 @pytest.mark.skipif(sys.version_info >= (3, 9),
     reason='Starting with Python 3.9 get_type_hints works without raising TypeError.')
 def test_add_options_from_warn_on_standard_collections_as_typing_generics():
@@ -298,3 +310,34 @@ def test_add_options_from_warn_on_standard_collections_as_typing_generics():
         def test(): pass
 
     assert len(warninfo) == 2  # Warns another time because no type hint is available.
+
+
+def test_parse_type_hint_into_kwargs_bool():
+    assert _parse_type_hint_into_kwargs(bool) == dict(is_flag=True, type=bool)
+
+
+@pytest.mark.parametrize('tp', [Sequence, List])
+def test_parse_type_hint_into_kwargs_list(tp):
+    assert _parse_type_hint_into_kwargs(tp[int]) == dict(multiple=True, type=int)
+    assert _parse_type_hint_into_kwargs(tp[str]) == dict(multiple=True, type=str)
+    assert _parse_type_hint_into_kwargs(tp[bool]) == dict(multiple=True, type=bool)
+
+
+def test_parse_type_hint_into_kwargs_tuple():
+    assert _parse_type_hint_into_kwargs(Tuple[int, str]) == dict(type=(int, str))
+    assert _parse_type_hint_into_kwargs(Tuple[int, int, int]) == dict(type=(int, int, int))
+
+
+def test_parse_type_hint_into_kwargs_union():
+    assert _parse_type_hint_into_kwargs(Union[int, str]) == dict(type=int)
+    assert _parse_type_hint_into_kwargs(Union[str, int]) == dict(type=str)
+
+
+def test_parse_type_hint_into_kwargs_list_with_union():
+    assert _parse_type_hint_into_kwargs(List[Union[int, str]]) == dict(multiple=True, type=int)
+    assert _parse_type_hint_into_kwargs(List[Union[str, float]]) == dict(multiple=True, type=str)
+
+
+def test_parse_type_hint_into_kwargs_union_with_list():
+    assert _parse_type_hint_into_kwargs(Union[List[int], List[str]]) == dict(multiple=True, type=int)
+    assert _parse_type_hint_into_kwargs(Union[List[str], List[int]]) == dict(multiple=True, type=str)

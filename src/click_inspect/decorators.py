@@ -128,11 +128,11 @@ def add_options_from(func,
 def _parse_type_hint_into_kwargs(tp_hint):
     args, origin = get_args(tp_hint), get_origin(tp_hint)
     if tp_hint is bool:
-        return dict(is_flag=True)
+        return dict(is_flag=True, type=bool)
     elif origin in (list, collections.abc.Sequence):
-        return dict(multiple=True, type=args[0])
+        return dict(multiple=True, type=_parse_type_hint_into_kwargs(args[0])['type'])
     elif origin is tuple:
-        return dict(type=args)
+        return dict(type=tuple(_parse_type_hint_into_kwargs(x)['type'] for x in args))
     elif origin is Union:
-        return dict(type=args[0])
+        return _parse_type_hint_into_kwargs(args[0])
     return dict(type=(origin or tp_hint))
