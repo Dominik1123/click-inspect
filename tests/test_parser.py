@@ -122,6 +122,10 @@ def test_parse_docstring(doc_func_or_string):
     assert str(warninfo[0].message.args[0]).startswith("Type hint 'CustomType' cannot be resolved.")
 
 
+def test_parse_docstring_no_warning_if_ignored(doc_func_or_string):
+    assert parse_docstring(doc_func_or_string, ignore={'a_b_c'})
+
+
 def test_parse_docstring_raises():
     with pytest.raises(UnsupportedDocstringStyle) as excinfo:
         parse_docstring('This docstring contains no parameters')
@@ -145,3 +149,8 @@ def test_parse_docstring_pass_on_unsupported_type_string():
             x (int and str): Type string is not supported.
         """
     assert parse_docstring(_f) == {'x': {'help': 'Type string is not supported.'}}
+
+
+def test_parse_docstring_return_empty_dict_if_no_doc():
+    def test(): pass
+    assert parse_docstring(test) == {}

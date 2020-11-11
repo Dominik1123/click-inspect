@@ -289,7 +289,7 @@ def test_add_options_from_union_type_hint_via_docstring(union_type_hint_function
     test_add_options_from_union_type_hint(union_type_hint_function)
 
 
-def test_add_option_from_nested_union_and_sequence():
+def test_add_options_from_nested_union_and_sequence():
     def func(*, x: Union[List[int], str]): pass
 
     @click.command()
@@ -298,6 +298,26 @@ def test_add_option_from_nested_union_and_sequence():
 
     assert len(test.params) == 1
     assert test.params[0].type is click.INT
+
+
+def test_add_options_from_no_type_warning_for_excluded_parameters():
+    def func(*, x: int):  # Use some valid type hint here to prevent further warnings.
+        """
+        Args:
+            x (UnknownType): If 'x' gets excluded, no warning should be issued.
+        """
+
+    with pytest.warns(UserWarning) as warninfo:
+        @add_options_from(func)
+        def test(): pass
+
+    assert len(warninfo) == 1
+
+    @click.command()
+    @add_options_from(func, exclude={'x'})
+    def test(): pass
+
+    assert len(test.params) == 0
 
 
 @pytest.mark.skipif(sys.version_info >= (3, 9),

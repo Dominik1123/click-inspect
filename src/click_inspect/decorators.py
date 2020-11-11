@@ -3,7 +3,8 @@ import collections.abc
 import inspect
 from inspect import Parameter
 import sys
-from typing import Any, Dict, Sequence, Set, Union, get_type_hints
+from types import MappingProxyType
+from typing import Any, Collection, Container, Mapping, Sequence, Union, get_type_hints
 try:
     from typing import get_args, get_origin             # type: ignore
 except ImportError:                                     # pragma: no cover
@@ -23,10 +24,10 @@ EMPTY = Parameter.empty
 
 def add_options_from(func,
                      *,
-                     names: Dict[str, Sequence[str]] = None,
-                     include: Set[str] = None,
-                     exclude: Set[str] = None,
-                     custom: Dict[str, Dict[str, Any]] = None):
+                     names: Mapping[str, Sequence[str]] = MappingProxyType({}),
+                     include: Collection[str] = frozenset(),
+                     exclude: Container[str] = frozenset(),
+                     custom: Mapping[str, Mapping[str, Any]] = MappingProxyType({})):
     """Inspect `func` and add corresponding options to the decorated function.
 
     Args:
@@ -48,11 +49,8 @@ def add_options_from(func,
                      If `func` type hints contain standard collections as type hinting generics
                      for Python < 3.9 (e.g. `list[int]`).
     """
-    include = include or set()
-    names = names or {}
-    custom = custom or {}
     try:
-        p_doc = parse_docstring(func.__doc__ or '')
+        p_doc = parse_docstring(func, ignore=exclude)
     except UnsupportedDocstringStyle:
         p_doc = defaultdict(dict)
     try:
@@ -69,7 +67,7 @@ def add_options_from(func,
             raise  # pragma: no cover
         type_hints = {}
     all_parameters = inspect.signature(func).parameters
-    to_be_used = (include or all_parameters.keys()) - (exclude or set())
+    to_be_used = {name for name in (include or all_parameters.keys()) if name not in exclude}
     parameters = [(name, parameter) for name, parameter in all_parameters.items()
                   if name in to_be_used]
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "click-inspect"
-version = "0.3.1"
+version = "0.3.2"
 description = "Add options to click commands based on inspecting functions"
 authors = ["Dominik1123"]
 license = "MIT"
