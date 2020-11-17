@@ -143,7 +143,7 @@ foo: bool = True
 # translates to
 click.option('--foo/--no-foo', default=True)
 
-# Use the following to create an on-/off-option:
+# Use the following to create a single flag option:
 add_options_from(my_func, names={'foo': ['--foo']})
 # translates to
 click.option('--foo', is_flag=True, default=True)
