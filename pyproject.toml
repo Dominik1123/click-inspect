@@ -10,6 +10,8 @@ repository = "https://github.com/Dominik1123/click-inspect"
 keywords = ["click", "command line interface", "inspect"]
 classifiers = [
     "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
