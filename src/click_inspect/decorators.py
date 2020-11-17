@@ -66,10 +66,13 @@ def add_options_from(func,
         else:
             raise  # pragma: no cover
         type_hints = {}
+
     all_parameters = inspect.signature(func).parameters
     to_be_used = {name for name in (include or all_parameters.keys()) if name not in exclude}
     parameters = [(name, parameter) for name, parameter in all_parameters.items()
                   if name in to_be_used]
+
+    include = set(include) | names.keys() | custom.keys()
 
     def _decorator(f):
         for name, parameter in reversed(parameters):

@@ -77,6 +77,18 @@ def test_add_options_from_include(base_function):
     assert test.params[1].help == 'This one should be added.'
 
 
+def test_add_options_from_include_via_names_and_custom():
+    def func(a: int, b: int, c: int): pass
+
+    @click.command()
+    @add_options_from(func, names={'a': ['-a']}, custom={'c': {'default': 1}})
+    def test(): pass
+
+    assert len(test.params) == 2
+    assert test.params[0].name == 'a'
+    assert test.params[1].name == 'c'
+
+
 def test_add_options_from_exclude(base_function):
     @click.command()
     @add_options_from(base_function, exclude={'b', 'c'})
